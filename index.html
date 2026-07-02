@@ -192,57 +192,6 @@
         </div>
     </footer>
 
-    <script>
-        // Replace this URL with your deployed Google Apps Script Web App URL
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzjZhb2TAr_Q1tteRezOeLNO8Kb5Zz709ZYgqhEdOwvBIwjL68e5FeNcfcDQ6vC7_Fp/exec"
-        document.getElementById('bookingForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-            
-            const form = this;
-            const submitBtn = document.getElementById('submitBtn');
-            const btnText = submitBtn.querySelector('.btn-text');
-            const spinner = submitBtn.querySelector('.spinner');
-            const successAlert = document.getElementById('successMessage');
-            const errorAlert = document.getElementById('errorMessage');
-
-            // Reset alerts
-            successAlert.classList.add('hidden');
-            errorAlert.classList.add('hidden');
-
-            // UI Loading State
-            submitBtn.disabled = true;
-            btnText.classList.add('hidden');
-            spinner.classList.remove('hidden');
-
-            // Gather standard form data
-            const formData = new FormData(form);
-
-            // Send standard POST request to Google Apps Script Web App
-            fetch(WEB_APP_URL, {
-                method: 'POST',
-                body: formData
-            })
-            .then(response => response.json())
-            .then(data => {
-                if(data.status === 'success') {
-                    successAlert.classList.remove('hidden');
-                    form.reset();
-                } else {
-                    errorAlert.classList.remove('hidden');
-                    console.error('Server error:', data.message);
-                }
-            })
-            .catch(error => {
-                errorAlert.classList.remove('hidden');
-                console.error('Network error:', error);
-            })
-            .finally(() => {
-                // Restore UI Button State
-                submitBtn.disabled = false;
-                btnText.classList.remove('hidden');
-                spinner.classList.add('hidden');
-            });
-        });
-    </script>
+    <script src="code.js"></script>
 </body>
-</html>
+</html>>
