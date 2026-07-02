@@ -1,0 +1,100 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# C extensions
+*.so
+
+# Distribution / packaging
+.Python
+env/
+venv/
+ENV/
+build/
+dist/
+*.egg-info/
+.eggs/
+*.egg
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Unit test / coverage reports
+htmlcov/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+.pytest_cache/
+
+# PyCharm
+.idea/
+
+# VS Code
+.vscode/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints/
+
+# PYTHONPATH
+.python-version
+
+# Secrets and environment variables
+.env
+.env.*
+*.env
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+
+# Logs
+*.log
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+package-lock.json
+npm-shrinkwrap.json
+
+# Editor temporary files
+*~
+*.swp
+*.swo
+
+# Local settings
+local_settings.py
+settings_local.py
+
+# Generated site files
+*.html
+
+# Coverage and report files
+.coverage
+
+# Python distribution artifacts
+.eggs/
+build/
+dist/
+*.egg-info/
+
+# Cache directories
+__pycache__/
+
+# Django stuff
+*.log
+
+# SQLite database
+*.sqlite3
+
+# Backup files
+*.bak
+*.tmp

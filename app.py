@@ -1,7 +1,11 @@
+import os
+from dotenv import load_dotenv
 import mysql.connector
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 from werkzeug.security import generate_password_hash, check_password_hash
+
+load_dotenv()
 
 app = Flask(__name__)
 # CORS ensures your local index.html frontend is allowed to speak to this backend
@@ -10,10 +14,10 @@ CORS(app)
 # Database Connection Helper Function
 def get_db_connection():
     return mysql.connector.connect(
-        host="localhost",
-        user="root",          # Change if your MySQL username is different
-        password="ADMIN",     # PUT YOUR ACTUAL MYSQL PASSWORD HERE
-        database="medical_db",
+        host=os.getenv("DB_HOST"),
+        user=os.getenv("DB_USER"),
+        password=os.getenv("DB_PASSWORD"),
+        database=os.getenv("DB_NAME"),
         port=3306
     )
 
