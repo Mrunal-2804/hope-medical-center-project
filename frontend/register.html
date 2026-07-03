@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Register Account | Hope Medical Center</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css"> </head>
+
+<body style="display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #eef2f7;">
+
+
+
+    <div class="appointment-container" style="max-width: 450px; width: 100%; margin: 20px; padding: 10px;">
+
+        <div class="appointment-form-wrapper">
+
+            <h2>Create an Account</h2>
+
+            <p>Join Hope Medical Center to manage your bookings seamlessly.</p>
+
+            
+
+            <form id="registerForm">
+
+                <div class="form-group">
+
+                    <label for="regName">Full Name</label>
+
+                    <input type="text" id="regName" placeholder="John Doe" required>
+
+                </div>
+
+
+
+                <div class="form-group">
+
+                    <label for="regEmail">Email Address</label>
+
+                    <input type="email" id="regEmail" placeholder="john@example.com" required>
+
+                </div>
+
+                
+
+                <div class="form-group">
+
+                    <label for="regPassword">Password</label>
+
+                    <input type="password" id="regPassword" placeholder="••••••••" required>
+
+                </div>
+
+                
+
+                <div class="form-group">
+
+                    <label for="regConfirmPassword">Confirm Password</label>
+
+                    <input type="password" id="regConfirmPassword" placeholder="••••••••" required>
+
+                </div>
+
+                
+
+                <button type="submit" class="btn-submit" style="width: 100%; border: none;">
+
+                    <span class="btn-text">Register Account</span>
+
+                </button>
+
+            </form>
+
+            
+
+            <div id="regSuccessMessage" class="alert success hidden" style="margin-top:15px; padding:10px; border-radius:4px;"></div>
+
+            <div id="regErrorMessage" class="alert error hidden" style="margin-top:15px; padding:10px; border-radius:4px;"></div>
+
+        </div>
+
+    </div>
+
+
+
+    <script src="code.js"></script>
+
+</body>
+
+</html> 
