@@ -8,99 +8,101 @@ from werkzeug.security import generate_password_hash, check_password_hash
 load_dotenv()
 
 app = Flask(__name__)
-# CORS ensures your local index.html frontend is allowed to speak to this backend
 CORS(app)
 
 # Database Connection Helper Function
 def get_db_connection():
+    # Connects to the host server without assuming the database exists yet
     return mysql.connector.connect(
         host=os.getenv("DB_HOST"),
         user=os.getenv("DB_USER"),
         password=os.getenv("DB_PASSWORD"),
-        database=os.getenv("DB_NAME"),
         port=3306
     )
 
-# Ensure the appointments table exists before inserting records
-def ensure_appointments_table():
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS appointments (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            full_name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL,
-            phone VARCHAR(50) NOT NULL,
-            department VARCHAR(255) NOT NULL,
-            date_time DATETIME NOT NULL,
-            notes TEXT,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+# Bootstrap function to ensure database shell and tables exist
+def initialize_database():
+    try:
+        # 1. Connect to the global MySQL server
+        conn = get_db_connection()
+        cursor = conn.cursor()
+        
+        # 2. Create the empty database shell if missing
+        cursor.execute(f"CREATE DATABASE IF NOT EXISTS {os.getenv('DB_NAME', 'medical_db')};")
+        
+        # 3. Target the newly created database explicitly
+        cursor.execute(f"USE {os.getenv('DB_NAME', 'medical_db')};")
+        
+        # 4. Generate the users table
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS users (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                full_name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL UNIQUE,
+                password_hash VARCHAR(255) NOT NULL,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
         )
-        """
-    )
-    conn.commit()
-    cursor.close()
-    conn.close()
+        
+        # 5. Generate the appointments table
+        cursor.execute(
+            """
+            CREATE TABLE IF NOT EXISTS appointments (
+                id INT AUTO_INCREMENT PRIMARY KEY,
+                full_name VARCHAR(255) NOT NULL,
+                email VARCHAR(255) NOT NULL,
+                phone VARCHAR(50) NOT NULL,
+                department VARCHAR(255) NOT NULL,
+                date_time DATETIME NOT NULL,
+                notes TEXT,
+                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            )
+            """
+        )
+        
+        conn.commit()
+        cursor.close()
+        conn.close()
+        print("🎉 Cloud Database and Tables successfully verified/created!")
+    except Exception as e:
+        print(f"⚠️ Initialization Error: {e}")
 
-# Ensure the users table exists before registering or authenticating records
-def ensure_users_table():
+# Helper function to grab a functional cursor pinned to your database
+def get_active_cursor(dictionary=False):
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute(
-        """
-        CREATE TABLE IF NOT EXISTS users (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            full_name VARCHAR(255) NOT NULL,
-            email VARCHAR(255) NOT NULL UNIQUE,
-            password_hash VARCHAR(255) NOT NULL,
-            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        )
-        """
-    )
-    conn.commit()
-    cursor.close()
-    conn.close()
+    cursor = conn.cursor(dictionary=dictionary)
+    cursor.execute(f"USE {os.getenv('DB_NAME', 'medical_db')};")
+    return conn, cursor
 
 # Securely register and hash a new user in the database
 def signup_user(full_name, email, plain_text_password):
-    ensure_users_table()  # Make sure table exists first
-    conn = get_db_connection()
-    cursor = conn.cursor()
-    
-    # Hash the password for safety before saving
+    conn, cursor = get_active_cursor()
     hashed_password = generate_password_hash(plain_text_password)
-    
     insert_query = "INSERT INTO users (full_name, email, password_hash) VALUES (%s, %s, %s)"
     cursor.execute(insert_query, (full_name, email, hashed_password))
     conn.commit()
-    
     cursor.close()
     conn.close()
 
 # Check a user's credentials on login
 def authenticate_user(email, plain_text_password):
-    ensure_users_table()  # Make sure table exists first
-    conn = get_db_connection()
-    cursor = conn.cursor(dictionary=True)
-    
+    conn, cursor = get_active_cursor(dictionary=True)
     cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
     user = cursor.fetchone()
-    
     cursor.close()
     conn.close()
-    
-    # Check if user exists and password hash matches
     if user and check_password_hash(user['password_hash'], plain_text_password):
         return user
     return None
-
 
 # 1. This endpoint tests the connection (runs on page load)
 @app.route('/api/status', methods=['GET'])
 def get_status():
     try:
-        conn = get_db_connection()
+        conn, cursor = get_active_cursor()
+        cursor.close()
         conn.close()
         return jsonify({
             "status": "success",
@@ -116,17 +118,10 @@ def get_status():
 @app.route('/api/book-appointment', methods=['POST'])
 def book_appointment():
     try:
-        # Get the JSON data sent from code.js
         data = request.json
-        
-        # If no data came through, return an error
         if not data:
-            return jsonify({
-                "status": "error",
-                "message": "No data received."
-            }), 400
+            return jsonify({"status": "error", "message": "No data received."}), 400
 
-        # Extract the fields exactly as sent by your frontend
         full_name   = data.get('fullName')
         email       = data.get('email')
         phone       = data.get('phone')
@@ -134,41 +129,22 @@ def book_appointment():
         date_time   = data.get('dateTime')
         notes       = data.get('notes', 'None Provided')
 
-        # For now, we print it to your terminal screen to prove it works!
         print("\n--- NEW APPOINTMENT RECEIVED ---")
-        print(f"Patient: {full_name}")
-        print(f"Email: {email}")
-        print(f"Phone: {phone}")
-        print(f"Department: {department}")
-        print(f"Time: {date_time}")
-        print(f"Notes: {notes}")
+        print(f"Patient: {full_name}\nEmail: {email}\nPhone: {phone}")
         print("--------------------------------\n")
 
-        # Convert the date/time into MySQL-friendly format if needed
         if date_time and 'T' in date_time:
             date_time = date_time.replace('T', ' ')
             if len(date_time) == 16:
                 date_time += ':00'
 
-        # Ensure the appointments table exists
-        ensure_appointments_table()
-
-        # Insert the appointment into the MySQL database
-        conn = get_db_connection()
-        cursor = conn.cursor()
+        conn, cursor = get_active_cursor()
         insert_query = (
             "INSERT INTO appointments "
             "(full_name, email, phone, department, date_time, notes) "
             "VALUES (%s, %s, %s, %s, %s, %s)"
         )
-        cursor.execute(insert_query, (
-            full_name,
-            email,
-            phone,
-            department,
-            date_time,
-            notes
-        ))
+        cursor.execute(insert_query, (full_name, email, phone, department, date_time, notes))
         conn.commit()
         cursor.close()
         conn.close()
@@ -177,113 +153,65 @@ def book_appointment():
             "status": "success",
             "message": "Appointment saved to the database successfully."
         }), 201
-
     except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
-
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/signup', methods=['POST'])
 def signup():
     try:
         data = request.json
         if not data:
-            return jsonify({
-                "status": "error",
-                "message": "No signup data received."
-            }), 400
+            return jsonify({"status": "error", "message": "No signup data received."}), 400
 
         full_name = data.get('name')
         email = data.get('email')
         password = data.get('password')
 
         if not full_name or not email or not password:
-            return jsonify({
-                "status": "error",
-                "message": "Name, email, and password are required."
-            }), 400
+            return jsonify({"status": "error", "message": "Name, email, and password are required."}), 400
             
-        # If a user already exists with this email, check password to optionally auto-login
-        conn = get_db_connection()
-        cursor = conn.cursor(dictionary=True)
+        conn, cursor = get_active_cursor(dictionary=True)
         cursor.execute("SELECT * FROM users WHERE email = %s", (email,))
         existing = cursor.fetchone()
         cursor.close()
         conn.close()
 
         if existing:
-            # If password matches existing account, treat as successful login
             if check_password_hash(existing['password_hash'], password):
-                return jsonify({
-                    "status": "success",
-                    "message": "Existing account detected — logged in."
-                }), 200
+                return jsonify({"status": "success", "message": "Existing account detected — logged in."}), 200
             else:
-                return jsonify({
-                    "status": "error",
-                    "message": "This email is already registered. Please log in or reset your password."
-                }), 400
+                return jsonify({"status": "error", "message": "This email is already registered."}), 400
 
-        # Otherwise create a new user
         signup_user(full_name, email, password)
-        return jsonify({
-            "status": "success",
-            "message": "Signup successful. You are now logged in."
-        }), 201
+        return jsonify({"status": "success", "message": "Signup successful. You are now logged in."}), 201
     except mysql.connector.Error as err:
-        return jsonify({
-            "status": "error",
-            "message": f"Database error: {err}"
-        }), 500
+        return jsonify({"status": "error", "message": f"Database error: {err}"}), 500
     except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
-
+        return jsonify({"status": "error", "message": str(e)}), 500
 
 @app.route('/api/login', methods=['POST'])
 def login():
     try:
         data = request.json
         if not data:
-            return jsonify({
-                "status": "error",
-                "message": "No login data received."
-            }), 400
+            return jsonify({"status": "error", "message": "No login data received."}), 400
 
         email = data.get('email')
         password = data.get('password')
         if not email or not password:
-            return jsonify({
-                "status": "error",
-                "message": "Email and password are required."
-            }), 400
+            return jsonify({"status": "error", "message": "Email and password are required."}), 400
 
         user = authenticate_user(email, password)
         if user:
-            return jsonify({
-                "status": "success",
-                "message": "Login successful."
-            })
-        return jsonify({
-            "status": "error",
-            "message": "Invalid email or password."
-        }), 401
+            return jsonify({"status": "success", "message": "Login successful."})
+        return jsonify({"status": "error", "message": "Invalid email or password."}), 401
     except mysql.connector.Error as err:
-        return jsonify({
-            "status": "error",
-            "message": f"Database error: {err}"
-        }), 500
+        return jsonify({"status": "error", "message": f"Database error: {err}"}), 500
     except Exception as e:
-        return jsonify({
-            "status": "error",
-            "message": str(e)
-        }), 500
-        
+        return jsonify({"status": "error", "message": str(e)}), 500
 
+# Run initialization once upon starting the server script
+initialize_database()
 
 if __name__ == '__main__':
     app.run(host="0.0.0.0", port=5000, debug=True)

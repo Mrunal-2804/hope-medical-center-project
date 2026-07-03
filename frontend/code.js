@@ -100,11 +100,15 @@ async function handleRegisterSubmit(event) {
 
         const result = await response.json();
 
+        // Check if response is successful or OK
         if (response.ok && result.status === "success") {
             successBox.innerHTML = `<i class="fa-solid fa-circle-check"></i> ${result.message}`;
             successBox.classList.remove('hidden');
             successBox.style.display = "block";
             document.getElementById('registerForm').reset();
+            
+            // Mark the user as authenticated in browser memory so index.html lets them in
+            localStorage.setItem("isLoggedIn", "true");
             
             // Redirect smoothly straight back to your main landing index page after a 1.5 - 2 second delay
             setTimeout(() => { 
