@@ -198,13 +198,26 @@ def login():
 
         email = data.get('email')
         password = data.get('password')
+        
         if not email or not password:
             return jsonify({"status": "error", "message": "Email and password are required."}), 400
 
+        # Authenticate using your helper function
         user = authenticate_user(email, password)
+
         if user:
-            return jsonify({"status": "success", "message": "Login successful."})
-        return jsonify({"status": "error", "message": "Invalid email or password."}), 401
+            return jsonify({
+                "status": "success",
+                "message": f"Welcome back, {user['full_name']}!",
+                "user": {
+                    "id": user['id'],
+                    "name": user['full_name'],
+                    "email": user['email']
+                }
+            }), 200
+        else:
+            return jsonify({"status": "error", "message": "Invalid email or password."}), 401
+
     except mysql.connector.Error as err:
         return jsonify({"status": "error", "message": f"Database error: {err}"}), 500
     except Exception as e:
@@ -213,5 +226,10 @@ def login():
 # Run initialization once upon starting the server script
 initialize_database()
 
+# --- SERVER STARTUP ---
 if __name__ == '__main__':
-    app.run(host="0.0.0.0", port=5000, debug=True)
+    # Bootstrap the DB and tables before the server starts handling traffic
+    initialize_database()
+    
+    # Start the Flask development server
+    app.run(host='0.0.0.0', port=5000, debug=True)
