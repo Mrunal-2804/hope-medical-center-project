@@ -142,7 +142,7 @@ hope-medical-center-project/
 ## 🏠 Home Page
 
 <p align="center">
-<img src="screenshots/home.png" width="900">
+<img src="Screenshots/home .png" width="900">
 </p>
 
 ---
