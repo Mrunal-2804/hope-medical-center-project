@@ -7,7 +7,7 @@
 window.onload = async function() {
     // A. Run a connection test to ensure Flask backend is reachable
     try {
-        const response = await fetch('http://15.134.223.239:5000/api/status');
+        const response = await fetch('http://13.54.142.134:5000/api/status');
         const data = await response.json();
         console.log("Backend Connection Status:", data.message);
     } catch (error) {
@@ -41,7 +41,7 @@ async function handleFormSubmit(event) {
     };
 
     try {
-        const response = await fetch('http://15.134.223.239:5000/api/book-appointment', {
+        const response = await fetch('http://13.54.142.134:5000/api/book-appointment', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -92,7 +92,7 @@ async function handleRegisterSubmit(event) {
 
     try {
         // Broadcast data payload to Flask backend endpoint
-        const response = await fetch('http://15.134.223.239:5000/api/signup', {
+        const response = await fetch('http://13.54.142.134:5000/api/signup', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(payload)
