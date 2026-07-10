@@ -64,7 +64,7 @@ This project demonstrates practical Cloud and DevOps skills including Linux admi
 | Backend | Python, Flask, Flask-CORS |
 | Database | MySQL |
 | Web Server | Nginx |
-| Cloud | Amazon EC2, Amazon VPC, Elastic IP, Security Groups, S3 Bucket , IAM |
+| Cloud | Amazon EC2, Amazon VPC, Elastic IP, Security Groups, S3 Bucket ,Amazon RDS , IAM |
 | OS | Ubuntu Linux |
 | Networking | Security Groups, Elastic IP |
 | Version Control | Git, GitHub |
@@ -292,6 +292,7 @@ backend/database.sql
 
 - AWS EC2 Deployment
 - Ubuntu Linux Administration
+- Amazon RDS
 - Nginx Configuration
 - Flask REST APIs
 - MySQL Integration
@@ -306,7 +307,6 @@ backend/database.sql
 
 - Docker Containerization
 - Kubernetes Deployment
-- Amazon RDS
 - HTTPS using SSL
 - CI/CD with GitHub Actions
 - Application Load Balancer
