@@ -64,7 +64,7 @@ This project demonstrates practical Cloud and DevOps skills including Linux admi
 | Backend | Python, Flask, Flask-CORS |
 | Database | MySQL |
 | Web Server | Nginx |
-| Cloud | AWS EC2 |
+| Cloud | Amazon EC2, Amazon VPC, Elastic IP, Security Groups, S3 Bucket , IAM |
 | OS | Ubuntu Linux |
 | Networking | Security Groups, Elastic IP |
 | Version Control | Git, GitHub |
@@ -150,15 +150,15 @@ hope-medical-center-project/
 ## 🔐 Login Page
 
 <p align="center">
-<img src="screenshots/login.png" width="900">
+<img src="Screenshots/login.png" width="900">
 </p>
 
 ---
 
-## 👤 Registration
+## 👤 Backend 
 
 <p align="center">
-<img src="screenshots/register.png" width="900">
+<img src="Screenshots/backend.png" width="900">
 </p>
 
 ---
@@ -166,7 +166,7 @@ hope-medical-center-project/
 ## 📅 Appointment Booking
 
 <p align="center">
-<img src="screenshots/appointment.png" width="900">
+<img src="Screenshots/appointment.png" width="900">
 </p>
 
 ---
